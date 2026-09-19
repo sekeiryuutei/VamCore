@@ -1,0 +1,49 @@
+.vc-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vc-slate-900);
+  background-image: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.16), transparent 45%),
+                     radial-gradient(circle at 80% 75%, rgba(34, 211, 238, 0.10), transparent 40%);
+}
+
+.vc-login-panel {
+  width: 100%;
+  max-width: 340px;
+  background: var(--vc-white);
+  border-radius: var(--vc-radius);
+  border-top: 3px solid var(--vc-blue);
+  padding: var(--vc-space-6) var(--vc-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vc-space-3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.vc-login-brand {
+  font-family: var(--vc-font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--vc-slate-900);
+}
+
+.vc-login-tagline {
+  margin: -8px 0 var(--vc-space-2);
+  color: var(--vc-gray);
+  font-size: 0.88rem;
+}
+
+.vc-login-error {
+  color: var(--vc-error);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.vc-login-footnote {
+  margin: var(--vc-space-2) 0 0;
+  font-family: var(--vc-font-mono);
+  font-size: 0.7rem;
+  color: var(--vc-gray);
+  text-align: center;
+}

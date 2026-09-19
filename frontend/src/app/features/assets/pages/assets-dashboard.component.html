@@ -1,0 +1,101 @@
+<div class="vc-scope-assets">
+  <div class="vc-page-header">
+    <h1>{{ productName }}</h1>
+    <p>Gestión y control de activos fijos</p>
+  </div>
+
+  @if (message()) { <p class="vc-banner vc-banner-success">{{ message() }}</p> }
+  @if (errorMessage()) { <p class="vc-banner vc-banner-error">{{ errorMessage() }}</p> }
+
+  <div class="vc-stat-strip">
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ assets().length }}</span>
+      <span class="vc-stat-label">Activos registrados</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ assignedCount() }}</span>
+      <span class="vc-stat-label">Asignados o en uso</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ disposedCount() }}</span>
+      <span class="vc-stat-label">Dados de baja</span>
+    </div>
+  </div>
+
+  <div class="vc-workspace">
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Registrar activo</p>
+        <label class="vc-field">Código <input class="vc-input" [(ngModel)]="assetCode" placeholder="LAPTOP-001" /></label>
+        <label class="vc-field">Nombre <input class="vc-input" [(ngModel)]="name" placeholder="Laptop Lenovo" /></label>
+        <label class="vc-field">Categoría <input class="vc-input" [(ngModel)]="category" placeholder="Cómputo" /></label>
+        <label class="vc-field">Serial <input class="vc-input" [(ngModel)]="serialNumber" placeholder="SN123456" /></label>
+        <label class="vc-field">Costo de adquisición (COP, opcional) <input class="vc-input" type="number" [(ngModel)]="acquisitionCost" /></label>
+        <label class="vc-field">Vida útil en meses (opcional) <input class="vc-input" type="number" [(ngModel)]="usefulLifeMonths" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createAsset()">Registrar activo</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Asignar a persona</p>
+        <label class="vc-field">ID de persona (UUID de prueba) <input class="vc-input" [(ngModel)]="assigneeId" /></label>
+        <p style="font-size: 0.78rem; color: var(--vc-gray); margin: 0;">
+          Usa el botón "Asignar" en la fila del activo (solo disponible en estado IN_STORAGE).
+        </p>
+      </div>
+
+      @if (selectedDepreciation(); as dep) {
+        <div class="vc-panel">
+          <p class="vc-panel-title">Depreciación</p>
+          @if (dep.currentBookValue !== null && dep.currentBookValue !== undefined) {
+            <p class="vc-code" style="font-size: 0.85rem;">
+              Costo: {{ dep.acquisitionCost }} {{ dep.currency }}<br />
+              Vida útil: {{ dep.usefulLifeMonths }} meses<br />
+              Valor en libros hoy: {{ dep.currentBookValue }} {{ dep.currency }}
+            </p>
+          } @else {
+            <p class="vc-empty-row">Este activo no tiene costo/vida útil registrados.</p>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Catálogo de activos</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Estado</th><th>Asignado a</th><th></th></tr></thead>
+            <tbody>
+              @for (a of assets(); track a.id) {
+                <tr>
+                  <td class="vc-code">{{ a.assetCode }}</td>
+                  <td>{{ a.name }}</td>
+                  <td>{{ a.category || '—' }}</td>
+                  <td><span class="vc-badge">{{ a.status }}</span></td>
+                  <td class="vc-code">{{ a.currentAssigneeId ? (a.currentAssigneeId | slice:0:8) : '—' }}</td>
+                  <td>
+                    @if (a.status === 'IN_STORAGE') {
+                      <button class="vc-btn vc-btn-sm" (click)="assign(a)">Asignar</button>
+                    }
+                    @if (a.status === 'IN_USE') {
+                      <button class="vc-btn vc-btn-sm" (click)="scheduleMaintenance(a)">Programar mantenimiento</button>
+                    }
+                    @if (a.status === 'IN_MAINTENANCE') {
+                      <button class="vc-btn vc-btn-sm" (click)="completeMaintenance(a)">Completar mantenimiento</button>
+                    }
+                    @if (suggestedNextStatus(a)) {
+                      <button class="vc-btn vc-btn-sm" (click)="advanceStatus(a)">Pasar a {{ suggestedNextStatus(a) }}</button>
+                    }
+                    <button class="vc-btn vc-btn-sm" (click)="viewDepreciation(a)">Depreciación</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="vc-empty-row">Todavía no hay activos. Registra el primero desde el panel izquierdo.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

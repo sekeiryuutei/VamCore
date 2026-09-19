@@ -1,0 +1,85 @@
+# ============================================================================
+# product.config.yml
+# ----------------------------------------------------------------------------
+# Fuente única de verdad para los nombres de marca del proyecto.
+# Si en algún momento cambian los nombres comerciales (empresa, plataforma
+# o alguno de los módulos), este es el ÚNICO archivo que se debería editar
+# a mano. Luego se ejecuta scripts/rename-product.sh para propagar el cambio
+# a todo el repositorio (backend, frontend, docs, docker, etc).
+#
+# NO se recomienda editar los nombres directamente en el código fuente,
+# porque quedarían desincronizados con este archivo.
+# ============================================================================
+
+company:
+  name: "Codevam"                 # Nombre de la empresa/marca dueña del producto (ver manual de marca)
+  domain: "codevam.co"            # Dominio real (manual de marca): codevam.co, hola@codevam.co
+  tagline: "software a medida"
+
+platform:
+  name: "VamCore"                 # Nombre comercial de la plataforma completa
+  slug: "vamcore"                 # Usado en: repo, package base, docker, DB name
+  java_base_package: "com.vamcore" # Paquete raíz de Java (todo el backend cuelga de aquí)
+  description: "Plataforma empresarial modular de inventarios, activos fijos y logística"
+
+modules:
+  - key: "inventory"              # Nombre técnico interno (bounded context / paquete Java)
+    display_name: "VamStock"      # Nombre comercial mostrado al usuario
+    slug: "vamstock"
+    description: "Sistema de control e inventarios empresariales"
+
+  - key: "assets"
+    display_name: "VamAsset"
+    slug: "vamasset"
+    description: "Sistema de gestión y control de activos fijos"
+
+  - key: "logistics"
+    display_name: "VamTrack"
+    slug: "vamtrack"
+    description: "Plataforma logística y de seguimiento de entregas"
+
+# Módulos "core" transversales (normalmente NO cambian de nombre comercial,
+# pero se listan aquí por completitud y porque también son paquetes Java).
+core_modules:
+  - identity
+  - organization
+  - audit
+  - files
+  - notifications
+  - reporting
+
+# ----------------------------------------------------------------------------
+# TOKENS DE MARCA VISUAL (ver codevam_manual_de_marca.pdf)
+# ----------------------------------------------------------------------------
+# Estos valores alimentan frontend/src/styles.scss. Si el manual de marca
+# cambia, actualiza aquí primero y luego propaga a styles.scss.
+brand:
+  colors:
+    slate_900: "#0B1220"      # base / fondos oscuros
+    electric_blue: "#2563EB"  # acento primario / CTA
+    cyan: "#22D3EE"           # acento del símbolo / detalles
+    violet: "#7C3AED"         # acento secundario, uso puntual
+    neutral_gray: "#94A3B8"   # texto secundario
+    off_white: "#F8FAFC"      # fondos claros
+  fonts:
+    display: "Outfit"           # títulos, wordmark, cifras destacadas
+    body: "Work Sans"           # texto de cuerpo, párrafos, interfaces
+    mono: "JetBrains Mono"      # código, símbolo, datos técnicos, etiquetas
+
+# ----------------------------------------------------------------------------
+# CÓMO SE USA ESTE ARCHIVO
+# ----------------------------------------------------------------------------
+# 1. Cambia los valores que necesites aquí (por ejemplo platform.name o el
+#    display_name de un módulo).
+# 2. Corre: ./scripts/rename-product.sh
+#    Ese script busca los marcadores de nombre actuales en todo el repo
+#    (backend/pom.xml, application.yml, frontend/package.json,
+#    frontend/src/environments/*, docs/, infrastructure/docker-compose.yml,
+#    README.md) y los reemplaza por los nuevos valores.
+# 3. Revisa el `git diff` antes de hacer commit.
+#
+# IMPORTANTE: cambiar `platform.java_base_package` implica mover físicamente
+# los paquetes Java (com/vamcore/... -> com/nuevopaquete/...). El script
+# hace ese movimiento por ti, pero de todas formas revisa que compile
+# (`mvn -f backend/pom.xml compile`) después de correrlo.
+# ============================================================================

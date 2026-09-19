@@ -1,0 +1,104 @@
+<div class="vc-scope-summary">
+  <div class="vc-page-header">
+    <h1>Resumen</h1>
+    <p>Vista general de {{ companyName }} a través de VamStock, VamAsset y VamTrack</p>
+  </div>
+
+  @if (errorMessage()) { <p class="vc-banner vc-banner-error">{{ errorMessage() }}</p> }
+
+  @if (summary(); as s) {
+    <div class="vc-stat-strip">
+      <div class="vc-stat"><span class="vc-stat-value">{{ s.productCount }}</span><span class="vc-stat-label">Productos (VamStock)</span></div>
+      <div class="vc-stat"><span class="vc-stat-value">{{ s.warehouseCount }}</span><span class="vc-stat-label">Bodegas</span></div>
+      <div class="vc-stat"><span class="vc-stat-value">{{ s.assetCount }}</span><span class="vc-stat-label">Activos (VamAsset)</span></div>
+      <div class="vc-stat"><span class="vc-stat-value">{{ s.deliveryCount }}</span><span class="vc-stat-label">Entregas (VamTrack)</span></div>
+    </div>
+  }
+
+  <div class="vc-workspace">
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Actividad reciente</p>
+        <div class="vc-feed">
+          @for (a of activity(); track a.occurredAt + a.entityId) {
+            <div class="vc-feed-item">
+              <span class="vc-feed-main">{{ a.action }} · <span class="vc-mono">{{ a.entityType }}</span></span>
+              <span class="vc-feed-meta">{{ a.occurredAt | date:'short' }}</span>
+            </div>
+          } @empty {
+            <p class="vc-empty-row">Sin actividad registrada todavía. Crea un producto, un activo o una entrega para ver el historial aquí.</p>
+          }
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Notificaciones</p>
+        <div class="vc-feed">
+          @for (n of notifications(); track n.id) {
+            <div class="vc-feed-item">
+              <span class="vc-feed-main">{{ n.subject }}</span>
+              <span class="vc-feed-meta">{{ n.createdAt | date:'short' }}</span>
+            </div>
+          } @empty {
+            <p class="vc-empty-row">Sin notificaciones todavía. Se generan automáticamente al entregar un pedido, dar de baja un activo, o agotar stock.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Archivos</p>
+        <label class="vc-upload-label">
+          {{ uploading() ? 'Subiendo…' : 'Subir archivo' }}
+          <input type="file" (change)="onFileSelected($event)" style="display: none" [disabled]="uploading()" />
+        </label>
+
+        <div style="margin-top: var(--vc-space-3)">
+          @for (f of files(); track f.id) {
+            <div class="vc-file-row">
+              <div>
+                <div class="vc-file-name">{{ f.originalFilename }}</div>
+                <div class="vc-file-size">{{ formatSize(f.sizeBytes) }}</div>
+              </div>
+              <div class="vc-file-actions">
+                <button class="vc-btn vc-btn-sm" (click)="downloadFile(f)">Descargar</button>
+                <button class="vc-btn vc-btn-sm" (click)="deleteFile(f)">Borrar</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="vc-empty-row">Sin archivos todavía.</p>
+          }
+        </div>
+      </div>
+
+      @if (auth.isAdmin()) {
+        <div class="vc-panel">
+          <p class="vc-panel-title">Usuarios y roles</p>
+          <div class="vc-table-wrap">
+            <table class="vc-table">
+              <thead><tr><th>Email</th><th>Roles</th></tr></thead>
+              <tbody>
+                @for (u of users(); track u.id) {
+                  <tr>
+                    <td>{{ u.email }}</td>
+                    <td>
+                      @for (role of availableRoles; track role) {
+                        <label style="margin-right: 0.75rem; font-size: 0.8rem;">
+                          <input type="checkbox" [checked]="u.roles.includes(role)" (change)="toggleRole(u, role)" />
+                          {{ role }}
+                        </label>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="2" class="vc-empty-row">Sin usuarios.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

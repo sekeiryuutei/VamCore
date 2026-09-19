@@ -1,0 +1,465 @@
+/* ============================================================================
+   VamCore — sistema de diseño global.
+   Concepto: panel de operaciones (no SaaS de marketing). Sidebar oscuro fijo
+   como ancla visual, contenido denso en datos, monoespaciada real para
+   códigos/cantidades. Un acento de color por producto (VamStock/VamAsset/
+   VamTrack) para que el usuario sepa en qué módulo está de un vistazo.
+   Tokens tomados del manual de marca de Codevam (ver product.config.yml).
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Paleta Codevam */
+  --vc-slate-900: #0B1220;
+  --vc-slate-800: #141d2f;
+  --vc-slate-700: #1e293b;
+  --vc-blue: #2563EB;      /* acento VamStock */
+  --vc-violet: #7C3AED;    /* acento VamAsset */
+  --vc-cyan: #22D3EE;      /* acento VamTrack */
+  --vc-gray: #94A3B8;
+  --vc-off-white: #F8FAFC;
+  --vc-white: #FFFFFF;
+  --vc-line: #E2E8F0;
+
+  /* Funcionales (fuera de la paleta de marca, para no confundir semántica) */
+  --vc-success: #15803D;
+  --vc-success-bg: #ECFDF5;
+  --vc-error: #B91C1C;
+  --vc-error-bg: #FEF2F2;
+
+  /* Tipografía */
+  --vc-font-display: 'Outfit', system-ui, sans-serif;
+  --vc-font-body: 'Work Sans', system-ui, sans-serif;
+  --vc-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Escala de espaciado */
+  --vc-space-1: 4px;
+  --vc-space-2: 8px;
+  --vc-space-3: 12px;
+  --vc-space-4: 16px;
+  --vc-space-5: 24px;
+  --vc-space-6: 32px;
+  --vc-space-7: 48px;
+
+  --vc-radius: 8px;
+  --vc-sidebar-width: 232px;
+
+  /* Acento activo — cada página de producto lo sobreescribe (ver .vc-scope-*) */
+  --vc-accent: var(--vc-blue);
+  --vc-accent-bg: rgba(37, 99, 235, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--vc-font-body);
+  background-color: var(--vc-off-white);
+  color: var(--vc-slate-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .vc-display {
+  font-family: var(--vc-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+code, .vc-mono {
+  font-family: var(--vc-font-mono);
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--vc-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ----------------------------------------------------------------------
+   Shell: sidebar + contenido
+   ---------------------------------------------------------------------- */
+.vc-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.vc-sidebar {
+  width: var(--vc-sidebar-width);
+  flex-shrink: 0;
+  background: var(--vc-slate-900);
+  color: var(--vc-off-white);
+  display: flex;
+  flex-direction: column;
+  padding: var(--vc-space-5) var(--vc-space-4);
+}
+
+.vc-sidebar-brand {
+  font-family: var(--vc-font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--vc-off-white);
+  margin-bottom: var(--vc-space-6);
+  display: flex;
+  align-items: baseline;
+  gap: var(--vc-space-2);
+
+  small {
+    font-family: var(--vc-font-mono);
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--vc-gray);
+  }
+}
+
+.vc-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vc-space-1);
+  flex: 1;
+}
+
+.vc-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--vc-space-3);
+  padding: var(--vc-space-3);
+  border-radius: var(--vc-radius);
+  color: var(--vc-gray);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-left: 2px solid transparent;
+
+  .vc-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    color: var(--vc-off-white);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.active {
+    color: var(--vc-off-white);
+    background: rgba(255, 255, 255, 0.06);
+    border-left-color: var(--vc-link-accent, var(--vc-blue));
+  }
+}
+
+.vc-sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: var(--vc-space-4);
+  font-size: 0.8rem;
+  color: var(--vc-gray);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vc-space-2);
+
+  .vc-user-email {
+    font-family: var(--vc-font-mono);
+    font-size: 0.75rem;
+    color: var(--vc-off-white);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--vc-gray);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover { color: var(--vc-off-white); }
+  }
+}
+
+.vc-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--vc-space-6) var(--vc-space-7);
+}
+
+/* ----------------------------------------------------------------------
+   Encabezado de página + franja de métricas (estilo lectura técnica,
+   no "hero" de marketing con número animado)
+   ---------------------------------------------------------------------- */
+.vc-page-header {
+  margin-bottom: var(--vc-space-5);
+
+  h1 {
+    margin: 0 0 var(--vc-space-1);
+    font-size: 1.6rem;
+    color: var(--vc-slate-900);
+  }
+
+  p {
+    margin: 0;
+    color: var(--vc-gray);
+    font-size: 0.95rem;
+  }
+}
+
+.vc-stat-strip {
+  display: flex;
+  gap: var(--vc-space-6);
+  padding: var(--vc-space-4) 0;
+  margin-bottom: var(--vc-space-5);
+  border-top: 1px solid var(--vc-line);
+  border-bottom: 1px solid var(--vc-line);
+}
+
+.vc-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--vc-space-3);
+  border-left: 2px solid var(--vc-accent);
+
+  .vc-stat-value {
+    font-family: var(--vc-font-mono);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--vc-slate-900);
+    line-height: 1;
+  }
+
+  .vc-stat-label {
+    font-size: 0.78rem;
+    color: var(--vc-gray);
+  }
+}
+
+/* ----------------------------------------------------------------------
+   Layout de trabajo: panel de acción (angosto) + panel de datos (ancho)
+   ---------------------------------------------------------------------- */
+.vc-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: var(--vc-space-6);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .vc-workspace { grid-template-columns: 1fr; }
+  .vc-shell { flex-direction: column; }
+  .vc-sidebar { width: 100%; }
+}
+
+.vc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vc-space-4);
+}
+
+.vc-panel-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vc-space-5);
+}
+
+.vc-panel-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--vc-slate-900);
+  margin: 0;
+}
+
+.vc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--vc-slate-900);
+}
+
+.vc-input {
+  padding: var(--vc-space-2) var(--vc-space-3);
+  border: 1px solid var(--vc-line);
+  border-radius: 6px;
+  font-family: var(--vc-font-body);
+  font-size: 0.9rem;
+  background: var(--vc-white);
+
+  &:focus {
+    border-color: var(--vc-accent);
+  }
+}
+
+.vc-btn {
+  padding: var(--vc-space-2) var(--vc-space-4);
+  border-radius: 6px;
+  border: 1px solid var(--vc-line);
+  background: var(--vc-white);
+  font-family: var(--vc-font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--vc-slate-900);
+
+  &:hover { border-color: var(--vc-accent); color: var(--vc-accent); }
+}
+
+.vc-btn-primary {
+  background: var(--vc-accent);
+  border-color: var(--vc-accent);
+  color: var(--vc-white);
+
+  &:hover { opacity: 0.92; color: var(--vc-white); }
+}
+
+.vc-btn-sm {
+  padding: 3px var(--vc-space-2);
+  font-size: 0.75rem;
+}
+
+/* ----------------------------------------------------------------------
+   Tabla de datos
+   ---------------------------------------------------------------------- */
+.vc-table-wrap {
+  border: 1px solid var(--vc-line);
+  border-radius: var(--vc-radius);
+  overflow: hidden;
+}
+
+.vc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+
+  thead {
+    background: var(--vc-off-white);
+  }
+
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--vc-gray);
+    font-size: 0.75rem;
+    padding: var(--vc-space-3);
+    border-bottom: 1px solid var(--vc-line);
+  }
+
+  td {
+    padding: var(--vc-space-3);
+    border-bottom: 1px solid var(--vc-line);
+    color: var(--vc-slate-900);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--vc-off-white); }
+
+  .vc-code {
+    font-family: var(--vc-font-mono);
+    font-size: 0.82rem;
+  }
+}
+
+.vc-empty-row {
+  color: var(--vc-gray);
+  font-style: normal;
+  font-size: 0.85rem;
+}
+
+.vc-badge {
+  display: inline-block;
+  padding: 2px var(--vc-space-2);
+  border-radius: 999px;
+  background: var(--vc-accent-bg);
+  color: var(--vc-accent);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-family: var(--vc-font-mono);
+}
+
+/* ----------------------------------------------------------------------
+   Mensajes de estado (éxito/error) — voz del sistema, sin disculpas
+   ---------------------------------------------------------------------- */
+.vc-banner {
+  padding: var(--vc-space-3) var(--vc-space-4);
+  border-radius: 6px;
+  font-size: 0.88rem;
+  margin-bottom: var(--vc-space-4);
+}
+
+.vc-banner-success {
+  background: var(--vc-success-bg);
+  color: var(--vc-success);
+}
+
+.vc-banner-error {
+  background: var(--vc-error-bg);
+  color: var(--vc-error);
+}
+
+/* ----------------------------------------------------------------------
+   Feed de actividad / notificaciones / archivos (pantalla Resumen)
+   ---------------------------------------------------------------------- */
+.vc-feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.vc-feed-item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--vc-space-3);
+  padding: var(--vc-space-2) 0;
+  border-bottom: 1px solid var(--vc-line);
+  font-size: 0.85rem;
+
+  &:last-child { border-bottom: none; }
+
+  .vc-feed-main { color: var(--vc-slate-900); }
+  .vc-feed-meta { color: var(--vc-gray); font-size: 0.75rem; white-space: nowrap; }
+}
+
+.vc-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vc-space-3);
+  padding: var(--vc-space-2) 0;
+  border-bottom: 1px solid var(--vc-line);
+  font-size: 0.85rem;
+
+  &:last-child { border-bottom: none; }
+
+  .vc-file-name { color: var(--vc-slate-900); }
+  .vc-file-size { color: var(--vc-gray); font-family: var(--vc-font-mono); font-size: 0.72rem; }
+  .vc-file-actions { display: flex; gap: var(--vc-space-2); }
+}
+
+.vc-upload-label {
+  display: inline-block;
+  padding: var(--vc-space-2) var(--vc-space-4);
+  border-radius: 6px;
+  border: 1px dashed var(--vc-gray);
+  font-size: 0.85rem;
+  color: var(--vc-slate-900);
+  cursor: pointer;
+  text-align: center;
+
+  &:hover { border-color: var(--vc-accent); color: var(--vc-accent); }
+}
+
+/* Scopes de acento por producto */
+.vc-scope-inventory { --vc-accent: var(--vc-blue); --vc-accent-bg: rgba(37,99,235,0.1); }
+.vc-scope-assets    { --vc-accent: var(--vc-violet); --vc-accent-bg: rgba(124,58,237,0.1); }
+.vc-scope-logistics { --vc-accent: var(--vc-cyan); --vc-accent-bg: rgba(34,211,238,0.12); }
+.vc-scope-summary   { --vc-accent: var(--vc-slate-700); --vc-accent-bg: rgba(30,41,59,0.08); }

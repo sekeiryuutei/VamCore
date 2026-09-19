@@ -1,0 +1,65 @@
+# ============================================================================
+# application.yml
+# Toda propiedad sensible o parametrizable se lee de variables de entorno
+# con un valor por defecto razonable para desarrollo local.
+# Ver product.config.yml en la raíz del repositorio para los nombres de marca.
+# ============================================================================
+
+spring:
+  application:
+    name: ${VAMCORE_APP_NAME:vamcore-backend}
+
+  servlet:
+    multipart:
+      max-file-size: ${VAMCORE_MAX_FILE_SIZE:10MB}
+      max-request-size: ${VAMCORE_MAX_FILE_SIZE:10MB}
+
+  datasource:
+    url: ${VAMCORE_DB_URL:jdbc:postgresql://localhost:5432/vamcore}
+    username: ${VAMCORE_DB_USER:vamcore}
+    password: ${VAMCORE_DB_PASSWORD:vamcore}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # Flyway es la fuente de verdad del esquema; Hibernate solo valida.
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: ${VAMCORE_SERVER_PORT:8080}
+
+# Propiedades propias de la plataforma (nombre comercial, JWT, etc).
+# Mantener sincronizado con product.config.yml.
+vamcore:
+  platform:
+    name: ${VAMCORE_PLATFORM_NAME:VamCore}
+    company: ${VAMCORE_COMPANY_NAME:CodeVam}
+  security:
+    jwt:
+      secret: ${VAMCORE_JWT_SECRET:change-this-secret-in-every-environment-please}
+      expiration-minutes: ${VAMCORE_JWT_EXPIRATION_MINUTES:60}
+  files:
+    storage-path: ${VAMCORE_FILES_STORAGE_PATH:/app/storage}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  pattern:
+    level: "%5p [%X{correlationId}]"

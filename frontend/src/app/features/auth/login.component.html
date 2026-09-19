@@ -1,0 +1,26 @@
+<div class="vc-login-page">
+  <form class="vc-login-panel" (ngSubmit)="submit()">
+    <div class="vc-login-brand">{{ platformName }}</div>
+    <p class="vc-login-tagline">Inicia sesión para continuar</p>
+
+    <label class="vc-field">
+      Email
+      <input class="vc-input" type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+    </label>
+
+    <label class="vc-field">
+      Contraseña
+      <input class="vc-input" type="password" name="password" [(ngModel)]="password" required autocomplete="current-password" />
+    </label>
+
+    @if (errorMessage()) {
+      <p class="vc-login-error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" class="vc-btn vc-btn-primary" [disabled]="loading()">
+      {{ loading() ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+
+    <p class="vc-login-footnote">{{ companyName }} · api/v1</p>
+  </form>
+</div>

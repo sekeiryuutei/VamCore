@@ -1,0 +1,188 @@
+<div class="vc-scope-inventory">
+  <div class="vc-page-header">
+    <h1>{{ productName }}</h1>
+    <p>Control e inventarios empresariales</p>
+  </div>
+
+  @if (message()) { <p class="vc-banner vc-banner-success">{{ message() }}</p> }
+  @if (errorMessage()) { <p class="vc-banner vc-banner-error">{{ errorMessage() }}</p> }
+
+  <div class="vc-stat-strip">
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ products().length }}</span>
+      <span class="vc-stat-label">Productos</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ warehouses().length }}</span>
+      <span class="vc-stat-label">Bodegas</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ selectedStockTotal() }}</span>
+      <span class="vc-stat-label">Stock del producto seleccionado</span>
+    </div>
+  </div>
+
+  <div class="vc-workspace">
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nuevo producto</p>
+        <label class="vc-field">SKU <input class="vc-input" [(ngModel)]="sku" placeholder="LAPTOP-LENOVO-01" /></label>
+        <label class="vc-field">Nombre <input class="vc-input" [(ngModel)]="name" placeholder="Laptop Lenovo" /></label>
+        <label class="vc-field">Unidad de medida <input class="vc-input" [(ngModel)]="unitOfMeasure" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createProduct()">Crear producto</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nueva bodega</p>
+        <label class="vc-field">Nombre <input class="vc-input" [(ngModel)]="warehouseName" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createWarehouse()">Crear bodega</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Recibir stock</p>
+        <p class="vc-mono" style="font-size: 0.75rem; color: var(--vc-gray)">
+          Producto: {{ currentProductId() ? (currentProductId() | slice:0:8) : 'ninguno' }}<br />
+          Bodega: {{ currentWarehouseId() ? (currentWarehouseId() | slice:0:8) : 'ninguna' }}
+        </p>
+        <label class="vc-field">Cantidad <input class="vc-input" type="number" [(ngModel)]="receiveQuantity" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="receiveStock()">Registrar recepción</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nueva orden de compra</p>
+        <p class="vc-mono" style="font-size: 0.7rem; color: var(--vc-gray)">Usa el producto/bodega seleccionados arriba.</p>
+        <label class="vc-field">Código <input class="vc-input" [(ngModel)]="poCode" placeholder="PO-001" /></label>
+        <label class="vc-field">Proveedor <input class="vc-input" [(ngModel)]="poSupplier" /></label>
+        <label class="vc-field">Cantidad <input class="vc-input" type="number" [(ngModel)]="poQuantity" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createPurchaseOrder()">Crear orden</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nuevo conteo físico</p>
+        <p class="vc-mono" style="font-size: 0.7rem; color: var(--vc-gray)">Usa el producto/bodega seleccionados arriba.</p>
+        <label class="vc-field">Cantidad contada <input class="vc-input" type="number" [(ngModel)]="countQuantity" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createStockCount()">Registrar conteo</button>
+      </div>
+    </div>
+
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Catálogo</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>SKU</th><th>Nombre</th><th>Unidad</th><th></th></tr></thead>
+            <tbody>
+              @for (p of products(); track p.id) {
+                <tr>
+                  <td class="vc-code">{{ p.sku }}</td>
+                  <td>{{ p.name }}</td>
+                  <td>{{ p.unitOfMeasure }}</td>
+                  <td><button class="vc-btn vc-btn-sm" (click)="selectProduct(p)">Usar</button></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="vc-empty-row">Todavía no hay productos. Crea el primero desde el panel izquierdo.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Bodegas</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Nombre</th><th>Dirección</th><th></th></tr></thead>
+            <tbody>
+              @for (w of warehouses(); track w.id) {
+                <tr>
+                  <td>{{ w.name }}</td>
+                  <td>{{ w.address || '—' }}</td>
+                  <td><button class="vc-btn vc-btn-sm" (click)="selectWarehouse(w)">Usar</button></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="vc-empty-row">Todavía no hay bodegas. Crea la primera desde el panel izquierdo.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Stock del producto seleccionado</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Bodega</th><th>Cantidad</th></tr></thead>
+            <tbody>
+              @for (row of stock(); track row.warehouseId) {
+                <tr>
+                  <td class="vc-code">{{ row.warehouseId | slice:0:8 }}</td>
+                  <td class="vc-code">{{ row.quantity }} {{ row.unit }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="2" class="vc-empty-row">Selecciona un producto en la tabla de arriba para ver su stock.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Órdenes de compra</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Código</th><th>Proveedor</th><th>Producto</th><th>Cant.</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              @for (po of purchaseOrders(); track po.id) {
+                <tr>
+                  <td class="vc-code">{{ po.code }}</td>
+                  <td>{{ po.supplierName || '—' }}</td>
+                  <td class="vc-code">{{ productSku(po.productId) }}</td>
+                  <td class="vc-code">{{ po.quantityOrdered }}</td>
+                  <td><span class="vc-badge">{{ po.status }}</span></td>
+                  <td>
+                    @if (po.status === 'DRAFT') {
+                      <button class="vc-btn vc-btn-sm" (click)="confirmPurchaseOrder(po)">Confirmar</button>
+                      <button class="vc-btn vc-btn-sm" (click)="cancelPurchaseOrder(po)">Cancelar</button>
+                    }
+                    @if (po.status === 'CONFIRMED') {
+                      <button class="vc-btn vc-btn-sm" (click)="receivePurchaseOrder(po)">Recibir</button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="vc-empty-row">Todavía no hay órdenes de compra.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Conteos físicos</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Producto</th><th>Sistema</th><th>Contado</th><th>Varianza</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              @for (c of stockCounts(); track c.id) {
+                <tr>
+                  <td class="vc-code">{{ productSku(c.productId) }}</td>
+                  <td class="vc-code">{{ c.systemQuantityAtCount }}</td>
+                  <td class="vc-code">{{ c.countedQuantity }}</td>
+                  <td class="vc-code">{{ c.variance > 0 ? '+' : '' }}{{ c.variance }}</td>
+                  <td><span class="vc-badge">{{ c.status }}</span></td>
+                  <td>
+                    @if (c.status === 'DRAFT') {
+                      <button class="vc-btn vc-btn-sm" (click)="applyStockCount(c)">Aplicar</button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="vc-empty-row">Todavía no hay conteos físicos.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

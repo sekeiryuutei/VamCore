@@ -1,0 +1,146 @@
+<div class="vc-scope-logistics">
+  <div class="vc-page-header">
+    <h1>{{ productName }}</h1>
+    <p>Logística y seguimiento de entregas</p>
+  </div>
+
+  @if (message()) { <p class="vc-banner vc-banner-success">{{ message() }}</p> }
+  @if (errorMessage()) { <p class="vc-banner vc-banner-error">{{ errorMessage() }}</p> }
+
+  <div class="vc-stat-strip">
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ deliveries().length }}</span>
+      <span class="vc-stat-label">Entregas totales</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ inTransitCount() }}</span>
+      <span class="vc-stat-label">En tránsito</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ deliveredCount() }}</span>
+      <span class="vc-stat-label">Entregadas</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ drivers().length }}</span>
+      <span class="vc-stat-label">Conductores</span>
+    </div>
+    <div class="vc-stat">
+      <span class="vc-stat-value">{{ vehicles().length }}</span>
+      <span class="vc-stat-label">Vehículos</span>
+    </div>
+  </div>
+
+  <div class="vc-workspace">
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Crear entrega</p>
+        <label class="vc-field">Código <input class="vc-input" [(ngModel)]="deliveryCode" placeholder="DEL-001" /></label>
+        <label class="vc-field">Cliente <input class="vc-input" [(ngModel)]="customerName" placeholder="Juan Pérez" /></label>
+        <label class="vc-field">Dirección destino <input class="vc-input" [(ngModel)]="destinationAddress" placeholder="Cali, Colombia" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createDelivery()">Crear entrega</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Asignar conductor y vehículo</p>
+        <label class="vc-field">
+          Conductor
+          <select class="vc-input" [(ngModel)]="selectedDriverId">
+            <option value="">Selecciona...</option>
+            @for (d of drivers(); track d.id) { <option [value]="d.id">{{ d.fullName }}</option> }
+          </select>
+        </label>
+        <label class="vc-field">
+          Vehículo (opcional)
+          <select class="vc-input" [(ngModel)]="selectedVehicleId">
+            <option value="">Selecciona...</option>
+            @for (v of vehicles(); track v.id) { <option [value]="v.id">{{ v.plate }}</option> }
+          </select>
+        </label>
+        <p style="font-size: 0.78rem; color: var(--vc-gray); margin: 0;">
+          Usa el botón "Asignar" en la fila de la entrega (solo disponible en estado READY).
+        </p>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nuevo cliente</p>
+        <label class="vc-field">Nombre <input class="vc-input" [(ngModel)]="newCustomerName" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createCustomer()">Agregar cliente</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nuevo vehículo</p>
+        <label class="vc-field">Placa <input class="vc-input" [(ngModel)]="newVehiclePlate" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createVehicle()">Agregar vehículo</button>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Nuevo conductor</p>
+        <label class="vc-field">Nombre completo <input class="vc-input" [(ngModel)]="newDriverName" /></label>
+        <button class="vc-btn vc-btn-primary" (click)="createDriver()">Agregar conductor</button>
+      </div>
+    </div>
+
+    <div class="vc-panel-group">
+      <div class="vc-panel">
+        <p class="vc-panel-title">Entregas</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Código</th><th>Cliente</th><th>Destino</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              @for (d of deliveries(); track d.id) {
+                <tr>
+                  <td class="vc-code">{{ d.deliveryCode }}</td>
+                  <td>{{ d.customerName }}</td>
+                  <td>{{ d.destinationAddress || '—' }}</td>
+                  <td><span class="vc-badge">{{ d.status }}</span></td>
+                  <td>
+                    @if (d.status === 'READY') {
+                      <button class="vc-btn vc-btn-sm" (click)="assignDriver(d)">Asignar</button>
+                    }
+                    @if (suggestedNextStatus(d)) {
+                      <button class="vc-btn vc-btn-sm" (click)="advanceStatus(d)">Pasar a {{ suggestedNextStatus(d) }}</button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="vc-empty-row">Todavía no hay entregas. Crea la primera desde el panel izquierdo.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Clientes</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Nombre</th><th>Teléfono</th></tr></thead>
+            <tbody>
+              @for (c of customers(); track c.id) {
+                <tr><td>{{ c.name }}</td><td>{{ c.phone || '—' }}</td></tr>
+              } @empty {
+                <tr><td colspan="2" class="vc-empty-row">Sin clientes registrados todavía.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="vc-panel">
+        <p class="vc-panel-title">Flota</p>
+        <div class="vc-table-wrap">
+          <table class="vc-table">
+            <thead><tr><th>Placa</th><th>Estado</th></tr></thead>
+            <tbody>
+              @for (v of vehicles(); track v.id) {
+                <tr><td class="vc-code">{{ v.plate }}</td><td><span class="vc-badge">{{ v.status }}</span></td></tr>
+              } @empty {
+                <tr><td colspan="2" class="vc-empty-row">Sin vehículos registrados todavía.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
