@@ -19,18 +19,18 @@ import static com.vamcore.logistics.domain.valueobject.DeliveryStatus.*;
  */
 public class Delivery {
 
-    private static final Map<DeliveryStatus, EnumSet<DeliveryStatus>> VALID_TRANSITIONS = Map.of(
-        CREATED, EnumSet.of(CONFIRMED, CANCELLED),
-        CONFIRMED, EnumSet.of(PREPARING, CANCELLED),
-        PREPARING, EnumSet.of(READY, CANCELLED),
-        READY, EnumSet.of(ASSIGNED),
-        ASSIGNED, EnumSet.of(DISPATCHED),
-        DISPATCHED, EnumSet.of(IN_TRANSIT),
-        IN_TRANSIT, EnumSet.of(DELIVERED, FAILED),
-        FAILED, EnumSet.of(RETURNED),
-        DELIVERED, EnumSet.noneOf(DeliveryStatus.class),
-        RETURNED, EnumSet.noneOf(DeliveryStatus.class),
-        CANCELLED, EnumSet.noneOf(DeliveryStatus.class)
+    private static final Map<DeliveryStatus, EnumSet<DeliveryStatus>> VALID_TRANSITIONS = Map.ofEntries(
+        Map.entry(CREATED, EnumSet.of(CONFIRMED, CANCELLED)),
+        Map.entry(CONFIRMED, EnumSet.of(PREPARING, CANCELLED)),
+        Map.entry(PREPARING, EnumSet.of(READY, CANCELLED)),
+        Map.entry(READY, EnumSet.of(ASSIGNED)),
+        Map.entry(ASSIGNED, EnumSet.of(DISPATCHED)),
+        Map.entry(DISPATCHED, EnumSet.of(IN_TRANSIT)),
+        Map.entry(IN_TRANSIT, EnumSet.of(DELIVERED, FAILED)),
+        Map.entry(FAILED, EnumSet.of(RETURNED)),
+        Map.entry(DELIVERED, EnumSet.noneOf(DeliveryStatus.class)),
+        Map.entry(RETURNED, EnumSet.noneOf(DeliveryStatus.class)),
+        Map.entry(CANCELLED, EnumSet.noneOf(DeliveryStatus.class))
     );
 
     private final UUID id;
